@@ -46,11 +46,11 @@ class Article{
     static async apiUpdateArticle(req,res,next){
         try{
             let articleId  = req.params.id;
-            const comment = {};
-            comment.title = req.body.title;
-            comment.body = req.body.body;
-            comment.article_image = req.body.article_image;
-            const updatedArticle = await ArticleService.updateArticleById(articleId,comment);
+            const dataBody = {};
+            dataBody.title = req.body.title;
+            dataBody.body = req.body.body;
+            dataBody.article_image = req.body.article_image;
+            const updatedArticle = await ArticleService.updateArticleById(articleId,dataBody);
             if(updatedArticle.modifiedCount === 0 ){
                 throw new Error("Unable to update article, error occord");
             }
