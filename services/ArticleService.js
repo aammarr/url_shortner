@@ -5,7 +5,11 @@ class ArticleService{
     static async getAllArticles(){
         try{
             const allArticles = await Article.find();
-            return allArticles;
+            let response={} 
+            response.data = allArticles;
+            response.status = 200;
+            response.message = "";
+            return response;
         }
         catch (error){
             console.log(`Could not fetch articles, ${error}`);
@@ -43,16 +47,15 @@ class ArticleService{
     static async updateArticleById(id, comment){
         try{
 
-            // const updateArticleResponse = await Article.updateOne(
-                //     {$set: { date: new Date.now() }}
-                // )
-            const updateArticleResponse = await Article.findByIdAndUpdate(id,{title:comment.title,body:comment.body,article_image:comment.article_image},function(err,result){
-                if (err) {
-                    return err;
-                } else {
-                    return result;
-                }
-            }).clone().catch(function(err){ console.log(err)})
+            // const updateArticleResponse = await Article.updateOne({_id:id},{$set: { title:comment.title, body:comment.body, article_image:comment.article_image }})
+            const updateArticleResponse = await Article.findOneAndUpdate({_id:id},{$set: { title:comment.title, body:comment.body, article_image:comment.article_image }})
+            // const updateArticleResponse = await Article.findByIdAndUpdate(id,{title:comment.title,body:comment.body,article_image:comment.article_image},function(err,result){
+            //     if (err) {
+            //         return err;
+            //     } else {
+            //         return result;
+            //     }
+            // }).clone().catch(function(err){ console.log(err)})
             return updateArticleResponse;
         }
         catch(error){
