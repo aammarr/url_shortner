@@ -1,3 +1,4 @@
+const { json } = require('express/lib/response');
 const UrlService = require('../services/UrlService');
 
 class Url{
@@ -22,7 +23,7 @@ class Url{
             const newShortenUrl =  await UrlService.createNewShortenUrl(req);
             
             return res.json({
-                status:newShortenUrl.status,
+                success:newShortenUrl.success,
                 data:req.body.url,
                 message:newShortenUrl.data
             });
@@ -31,6 +32,40 @@ class Url{
             res.status(500).json({error: error})
         }
     }
+
+    // apiGetUrlById function
+    static async apiGetUrlById(req,res,next){
+        try{
+            let id = req.params.id;
+            const response =  await UrlService.getUrlById(id);
+            
+            return res.json({
+                success:response.success,
+                data:req.body.url,
+                message:response.message
+            });
+        }
+        catch(error){
+            res.status(500).json({error: error})
+        }
+    }
+
+    //apiDeleteUrlById
+    static async apiDeleteUrlById(req,res,next){
+        try{
+            let id = req.params.id;
+            const response =  await UrlService.deleteUrlById(id);
+            
+            return res.json({
+                success:response.success,
+                data:[],
+                message:response.message
+            });
+        }
+        catch(error){
+            res.status(500).json({error:error})
+        }
+    } 
 }
 
 module.exports = Url
