@@ -41,7 +41,7 @@ class Url{
             
             return res.json({
                 success:response.success,
-                data:req.body.url,
+                data:response.data,
                 message:response.message
             });
         }
