@@ -4,9 +4,13 @@ const mongoose = require("mongoose");
 const bodyParser =  require("body-parser");
 const session = require('express-session');
 
+
 const dotenv = require("dotenv");
 dotenv.config();
 
+// redis
+
+// passport authentication
 const passport = require("passport");
 const { loginCheck } = require("./auth/passport");
 loginCheck(passport);
@@ -14,7 +18,6 @@ loginCheck(passport);
 //body-parser config;
 app.use(bodyParser.urlencoded({extended: true }));
 app.use(bodyParser.json());
-
 
 // Mongo DB conncetion
 const database = process.env.MONGOLAB_URI;
@@ -42,6 +45,7 @@ app.use(passport.session());
 app.use("/", require("./routes/login"));
 app.use("/api/v1", require("./routes/article.routes"));
 app.use("/api/v1", require("./routes/url.routes"));
+app.use("/api/v1", require("./routes/nft.routes"));
 
 const PORT = process.env.PORT || 3000;
 
