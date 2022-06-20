@@ -1,5 +1,13 @@
 const res = require('express/lib/response');
 const UrlModel = require('../models/Url.model');
+const redis = require('redis');
+const client = redis.createClient(process.env.REDIS_PORT);
+client.connect();  
+
+//log error to the console if any occurs
+client.on("error", (err) => {
+    console.log(err);
+});
 
 class UrlService{
     
@@ -18,7 +26,7 @@ class UrlService{
                 let shortCode = this.shortCode()
                 const newUrlShorten = {
                     url: data.body.url,
-                    shorten_url: '',  //'https://www.'+process.env.BASE_URL+shortCode,
+                    shorten_url: shortCode,  //'https://www.'+process.env.BASE_URL+shortCode,
                     code: shortCode,
                     user:'Test User',
                 }
@@ -62,26 +70,42 @@ class UrlService{
     }
     
     //
-    static async getUrlById(id){
+    static async getUrlById(id) {
         try{
-            let response = {}
-            const url = await UrlModel.findById(id);
-
-            if(url){
-                url.shorten_url="https://www."+process.env.BASE_URL+url.code;
-                response.data = url;
+            let response = {}            
+            let redisResponse = await client.get(id);
+            console.log(redisResponse != null)
+            
+            if (redisResponse != null) {
+                response.data = JSON.parse(redisResponse);
                 response.success = true;
-                response.message = '';
-            }else{
-                response.data = [];
-                response.success = true;
-                response.message = 'Not found';
+                response.message = 'retrieved from cache';
+                return response;
             }
-            return response
+            else {
+                console.log('----------------------------')
+                const url = await UrlModel.findById(id);
+                if (url) {
+                    client.set(id, JSON.stringify(url));
+
+                    url.shorten_url="https://www."+process.env.BASE_URL+url.code;
+                    response.data = url;
+                    response.success = true;
+                    response.message = 'cache miss';
+                    return response;
+                } else {
+                    response.data = [];
+                    response.success = true;
+                    response.message = 'Not found';
+                    return response;
+                }
+            }
         }
         catch(error){
             console.log(`Unable to get Url by Id, ${error}`);
         }
+        
+        
     }
 
     // isValidHttpUrl function
