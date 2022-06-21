@@ -65,7 +65,25 @@ class Url{
         catch(error){
             res.status(500).json({error:error})
         }
-    } 
+    }
+
+    //apiGetUrlByCode function
+    static async apiGetUrlByCode(req, res, next) {
+        let response = {};
+        let code = req.params.code;
+        try {
+            response = await UrlService.getUrlByCode(code);
+
+            return res.json({
+                success:response.success,
+                data:response.data,
+                message:response.message
+            });  
+        }
+        catch (err) {
+            res.status(500).json({error: error})
+        }
+    }
 }
 
 module.exports = Url
