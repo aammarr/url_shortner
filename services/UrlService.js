@@ -74,7 +74,6 @@ class UrlService{
         try{
             let response = {}            
             let redisResponse = await client.get(id);
-            console.log(redisResponse != null)
             
             if (redisResponse != null) {
                 response.data = JSON.parse(redisResponse);
@@ -83,12 +82,11 @@ class UrlService{
                 return response;
             }
             else {
-                console.log('----------------------------')
                 const url = await UrlModel.findById(id);
                 if (url) {
-                    client.set(id, JSON.stringify(url));
-
                     url.shorten_url="https://www."+process.env.BASE_URL+url.code;
+                    client.set(id, JSON.stringify(url));
+                    
                     response.data = url;
                     response.success = true;
                     response.message = 'cache miss';
@@ -133,12 +131,46 @@ class UrlService{
                 response.success = true;
                 response.message = 'Not found';
             }
-            return response
+            return response;
         }
         catch(error){
             console.log(`Unable to delete Url by Id, ${error}`);
         }
     }
+
+    //getUrlByCode function
+    static async getUrlByCode(code) {
+        try {
+            let response = {};
+            let redisResponse = await client.get(code);
+
+            if (redisResponse != null) {
+                response.data = JSON.parse(redisResponse);
+                response.success = true;
+                response.message = 'retrieved from cache';
+            }
+            else {
+                const url = await UrlModel.findOne({ code: code });
+                if (url) {
+                    client.set(code, JSON.stringify(url));
+                    response.data = url;
+                    response.success = true;
+                    response.message = 'cache miss';
+                }
+                else {
+                    response.data = [];
+                    response.success = true;
+                    response.message = 'Not found';
+                }
+            }
+            return response;
+        }
+        catch (err) {
+            console.log(`Unable to find Url by code, ${error}`);
+        }
+        
+    }
+
 }
 
 module.exports = UrlService;
